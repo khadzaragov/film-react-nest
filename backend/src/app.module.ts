@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'node:path';
@@ -14,9 +14,15 @@ import { OrderModule } from './order/order.module';
       isGlobal: true,
       cache: true,
     }),
-    MongooseModule.forRoot(
-      process.env.DATABASE_URL ?? 'mongodb://127.0.0.1:27017/afisha',
-    ),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri:
+          configService.get<string>('DATABASE_URL') ??
+          'mongodb://127.0.0.1:27017/afisha',
+      }),
+      inject: [ConfigService],
+    }),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public', 'content', 'afisha'),
       serveRoot: '/content/afisha',

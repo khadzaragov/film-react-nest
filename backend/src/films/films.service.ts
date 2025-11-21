@@ -4,8 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { randomUUID } from 'node:crypto';
 
 import {
@@ -13,29 +11,18 @@ import {
   OrderConfirmationDto,
 } from '../order/dto/order.dto';
 import { FilmDto, FilmScheduleSessionDto } from './dto/films.dto';
-import { Film, FilmDocument } from './schemas/film.schema';
+import { FilmsRepository } from '../repository/films.repository';
 
 @Injectable()
 export class FilmsService {
-  constructor(
-    @InjectModel(Film.name)
-    private readonly filmModel: Model<FilmDocument>,
-  ) {}
+  constructor(private readonly filmsRepository: FilmsRepository) {}
 
   async getFilms(): Promise<FilmDto[]> {
-    const films = await this.filmModel
-      .find({}, { _id: 0, __v: 0, schedule: 0 })
-      .lean()
-      .exec();
-
-    return films as FilmDto[];
+    return this.filmsRepository.findAll();
   }
 
   async getFilmSchedule(id: string): Promise<FilmScheduleSessionDto[]> {
-    const film = await this.filmModel
-      .findOne({ id }, { _id: 0, 'schedule._id': 0 })
-      .lean()
-      .exec();
+    const film = await this.filmsRepository.findByIdWithSchedule(id);
 
     if (!film) {
       throw new NotFoundException(`Film with id "${id}" was not found`);
@@ -47,10 +34,7 @@ export class FilmsService {
   async reserveSeat(
     ticket: CreateOrderTicketDto,
   ): Promise<OrderConfirmationDto> {
-    const film = await this.filmModel
-      .findOne({ id: ticket.film }, { _id: 0, 'schedule._id': 0 })
-      .lean()
-      .exec();
+    const film = await this.filmsRepository.findByIdWithSchedule(ticket.film);
 
     if (!film) {
       throw new NotFoundException(`Film "${ticket.film}" was not found`);
@@ -74,14 +58,13 @@ export class FilmsService {
       throw new ConflictException('Seat is already taken');
     }
 
-    const updateResult = await this.filmModel
-      .updateOne(
-        { id: ticket.film, 'schedule.id': ticket.session },
-        { $addToSet: { 'schedule.$.taken': seatKey } },
-      )
-      .exec();
+    const updated = await this.filmsRepository.addTakenSeat(
+      ticket.film,
+      ticket.session,
+      seatKey,
+    );
 
-    if (!updateResult.modifiedCount) {
+    if (!updated) {
       throw new ConflictException('Seat is already taken');
     }
 
