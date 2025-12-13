@@ -90,7 +90,10 @@ export function useAppState() {
     };
     const handleOpenFilm = () => {
         if (state.selectedFilm) {
-            api.current.getFilmSchedule(state.selectedFilm).then(setCurrentSchedule);
+            api.current.getFilmSchedule(state.selectedFilm).then((items) => {
+                setCurrentSchedule(items);
+                dispatch({ type: 'openModal', payload: 'schedule' });
+            });
         }
     };
 
