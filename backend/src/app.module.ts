@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'node:path';
 
-import { configProvider } from './app.config.provider';
 import { DatabaseModule } from './database/database.module';
 import { FilmsModule } from './films/films.module';
 import { OrderModule } from './order/order.module';
@@ -15,7 +14,6 @@ import { OrderModule } from './order/order.module';
       cache: true,
     }),
 
-    // подключение БД по env
     DatabaseModule.forRoot(),
 
     ServeStaticModule.forRoot({
@@ -26,6 +24,5 @@ import { OrderModule } from './order/order.module';
     FilmsModule,
     OrderModule,
   ],
-  providers: [configProvider],
 })
 export class AppModule {}

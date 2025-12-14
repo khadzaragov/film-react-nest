@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  JoinColumn,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { FilmEntity } from './film.entity';
 
 @Entity('schedule')

@@ -4,12 +4,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Film, FilmSchema } from '../films/schemas/film.schema';
-import { FilmEntity } from '../typeorm/film.entity';
-import { ScheduleEntity } from '../typeorm/schedule.entity';
-
 import { FilmsRepository } from '../repository/films.repository';
 import { MongoFilmsRepository } from '../repository/mongo-films.repository';
 import { PostgresFilmsRepository } from '../repository/postgres-films.repository';
+import { FilmEntity } from '../typeorm/film.entity';
+import { ScheduleEntity } from '../typeorm/schedule.entity';
 
 @Module({})
 export class DatabaseModule {
@@ -18,6 +17,7 @@ export class DatabaseModule {
 
     if (driver === 'postgres') {
       return {
+        global: true,
         module: DatabaseModule,
         imports: [
           ConfigModule,
@@ -26,11 +26,11 @@ export class DatabaseModule {
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
               type: 'postgres',
-              host: config.get<string>('DATABASE_HOST'),
+              host: config.get<string>('DATABASE_HOST') ?? '127.0.0.1',
               port: Number(config.get<string>('DATABASE_PORT') ?? 5432),
-              username: config.get<string>('DATABASE_USERNAME'),
+              username: config.get<string>('DATABASE_USERNAME') ?? 'student',
               password: config.get<string>('DATABASE_PASSWORD'),
-              database: config.get<string>('DATABASE_NAME'),
+              database: config.get<string>('DATABASE_NAME') ?? 'afisha',
               entities: [FilmEntity, ScheduleEntity],
               synchronize: true,
             }),
@@ -38,18 +38,18 @@ export class DatabaseModule {
           TypeOrmModule.forFeature([FilmEntity, ScheduleEntity]),
         ],
         providers: [
+          PostgresFilmsRepository,
           {
             provide: FilmsRepository,
-            useClass: PostgresFilmsRepository,
+            useExisting: PostgresFilmsRepository,
           },
-          PostgresFilmsRepository,
         ],
-        exports: [TypeOrmModule, FilmsRepository],
+        exports: [FilmsRepository],
       };
     }
 
-    // mongodb
     return {
+      global: true,
       module: DatabaseModule,
       imports: [
         ConfigModule,
@@ -65,13 +65,13 @@ export class DatabaseModule {
         MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
       ],
       providers: [
+        MongoFilmsRepository,
         {
           provide: FilmsRepository,
-          useClass: MongoFilmsRepository,
+          useExisting: MongoFilmsRepository,
         },
-        MongoFilmsRepository,
       ],
-      exports: [MongooseModule, FilmsRepository],
+      exports: [FilmsRepository],
     };
   }
 }
