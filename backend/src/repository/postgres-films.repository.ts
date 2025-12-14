@@ -30,10 +30,20 @@ export class PostgresFilmsRepository extends FilmsRepository {
         tags: true,
         image: true,
         cover: true,
-      } as any,
+      },
     });
 
-    return films as unknown as FilmDto[];
+    return films.map((film) => ({
+      id: film.id,
+      title: film.title,
+      about: film.about,
+      description: film.description,
+      director: film.director,
+      rating: film.rating,
+      tags: film.tags ?? [],
+      image: film.image,
+      cover: film.cover,
+    }));
   }
 
   async findByIdWithSchedule(id: string): Promise<FilmScheduleDto | null> {
@@ -51,7 +61,7 @@ export class PostgresFilmsRepository extends FilmsRepository {
       description: film.description,
       director: film.director,
       rating: film.rating,
-      tags: film.tags,
+      tags: film.tags ?? [],
       image: film.image,
       cover: film.cover,
       schedule: (film.schedule ?? []).map((s) => ({
