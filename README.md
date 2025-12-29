@@ -1,5 +1,19 @@
 # FILM!
 
+Проект задеплоен на виртуальной машине в **Yandex Cloud** с использованием Docker и Docker Compose.
+
+### Ссылки
+- **Frontend:** http://afisha-khadzaragov.nomorepartiessbs.ru/
+- **Backend API:** http://api-afisha-khadzaragov.nomorepartiessbs.ru/api/afisha/films
+
+### Инфраструктура
+- Frontend — React (Docker)
+- Backend — NestJS (Docker)
+- Nginx — reverse proxy
+- PostgreSQL — база данных
+- CI/CD — GitHub Actions + GHCR
+
+
 ## Установка
 
 ### MongoDB
