@@ -3,8 +3,8 @@
 Проект задеплоен на виртуальной машине в **Yandex Cloud** с использованием Docker и Docker Compose.
 
 ### Ссылки
-- **Frontend:** http://158.160.94.128/
-- **Backend API:** http://158.160.94.128/api/afisha/films
+- **Frontend:** http://afisha-khadzaragov.nomorepartiessbs.ru/
+- **Backend API:** http://api-afisha-khadzaragov.nomorepartiessbs.ru/api/afisha/films
 
 ### Инфраструктура
 - Frontend — React (Docker)
